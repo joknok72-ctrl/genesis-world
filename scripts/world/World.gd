@@ -192,7 +192,7 @@ func start_fire(i: int, fuel: float, cause: String) -> void:
 ## dt: ثواني عالم (حقيقية). تُستدعى كل إطار بـ delta أو بخطوات كبيرة عند الاستدراك.
 func tick(dt: float, now: float, coarse: bool = false) -> void:
 	# الحركة والقرارات لا تصحّ بخطوات كبيرة؛ نقسم أي خطوة إلى أجزاء ≤ 4 ثوانٍ
-	var max_sub := MAX_SUBSTEP_COARSE if coarse else MAX_SUBSTEP
+	var max_sub: float = MAX_SUBSTEP_COARSE_DYN if coarse else MAX_SUBSTEP
 	if dt > max_sub:
 		var remaining := dt
 		var t := now - dt
@@ -205,7 +205,7 @@ func tick(dt: float, now: float, coarse: bool = false) -> void:
 	_tick_inner(dt, now, coarse)
 
 const MAX_SUBSTEP := 4.0
-const MAX_SUBSTEP_COARSE := 8.0
+static var MAX_SUBSTEP_COARSE_DYN := 8.0
 
 func _tick_inner(dt: float, now: float, coarse: bool) -> void:
 	sim_time += dt

@@ -230,10 +230,14 @@ func _world_process(delta: float) -> void:
 	# 1) الاستدراك بعد الغياب — نحاكي بخطوات كبيرة ضمن ميزانية زمنية لكل إطار
 	if _catchup_left > 0.0:
 		var t0 := Time.get_ticks_msec()
+		# كلما طال الغياب صار الاستدراك أخشن (خطوات أطول) كي لا ينتظر المستخدم طويلاً
+		var sub := 8.0 if _catchup_total < 3.0 * 3600.0 else (20.0 if _catchup_total < 12.0 * 3600.0 else 45.0)
+		World.MAX_SUBSTEP_COARSE_DYN = sub
 		while _catchup_left > 0.0 and Time.get_ticks_msec() - t0 < CATCHUP_BUDGET_MS:
-			var step := minf(CATCHUP_STEP, _catchup_left)
+			var step := minf(sub * 4.0, _catchup_left)
 			world.tick(step, world.human_epoch + world.sim_time + step, true)
 			_catchup_left -= step
+		World.MAX_SUBSTEP_COARSE_DYN = 8.0
 		var done := 1.0 - _catchup_left / maxf(1.0, _catchup_total)
 		hud.cover_lbl.text = "كنتَ غائباً %s.\nالعالم لم يتوقّف… %d%%" % [WorldClock.duration_ar(_catchup_total), int(done * 100)]
 		if _catchup_left <= 0.0:
