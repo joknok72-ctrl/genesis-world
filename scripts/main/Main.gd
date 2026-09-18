@@ -26,7 +26,7 @@ var _eye_dir := ""
 var _eye_seq := 0
 var _eye_frames := 0
 const CATCHUP_STEP := 20.0        # ثانية عالم لكل خطوة استدراك
-const CATCHUP_BUDGET_MS := 24.0   # ميلي ثانية حساب لكل إطار أثناء الاستدراك
+const CATCHUP_BUDGET_MS := 40.0   # ميلي ثانية حساب لكل إطار أثناء الاستدراك
 
 func _ready() -> void:
 	get_tree().set_auto_accept_quit(true)
@@ -231,7 +231,7 @@ func _world_process(delta: float) -> void:
 	if _catchup_left > 0.0:
 		var t0 := Time.get_ticks_msec()
 		# كلما طال الغياب صار الاستدراك أخشن (خطوات أطول) كي لا ينتظر المستخدم طويلاً
-		var sub := 8.0 if _catchup_total < 3.0 * 3600.0 else (20.0 if _catchup_total < 12.0 * 3600.0 else 45.0)
+		var sub := 8.0 if _catchup_total < 2.0 * 3600.0 else (30.0 if _catchup_total < 10.0 * 3600.0 else 90.0)
 		World.MAX_SUBSTEP_COARSE_DYN = sub
 		while _catchup_left > 0.0 and Time.get_ticks_msec() - t0 < CATCHUP_BUDGET_MS:
 			var step := minf(sub * 4.0, _catchup_left)
