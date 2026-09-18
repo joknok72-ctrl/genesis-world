@@ -87,12 +87,19 @@ webapp/
 - **⚙ الإعدادات**: الصوت، الأسماء، الأفكار، تقليل المؤثرات للبطارية، الاهتزاز، «كيف أشاهد؟»، وبداية كونٍ جديد.
 - زر الرجوع في أندرويد يغلق اللوحات ثم يحفظ ويخرج.
 
+## الروابط
+
+- **المستودع:** https://github.com/joknok72-ctrl/genesis-world
+- **تنزيل APK (أحدث نسخة):** https://github.com/joknok72-ctrl/genesis-world/releases/download/latest/Genesis.apk
+- **صفحة الإصدارات:** https://github.com/joknok72-ctrl/genesis-world/releases/tag/latest
+- **البناء التلقائي (Actions):** https://github.com/joknok72-ctrl/genesis-world/actions
+
 ## التشغيل والبناء
 
 ### على الهاتف (APK جاهز)
-1. افتح صفحة **Releases** في المستودع (أو تبويب **Actions** ⇒ آخر تشغيل ⇒ Artifacts).
-2. نزّل `Genesis.apk` وثبّته (فعّل "مصادر غير معروفة").
-3. يُبنى APK جديد تلقائياً عند كل push إلى `main`.
+1. من هاتفك افتح رابط التنزيل أعلاه ونزّل `Genesis.apk` (~58 MB، يدعم arm64 و armv7).
+2. ثبّته (فعّل "السماح من هذا المصدر" إن طُلب). النسخة موقّعة بمفتاح تطوير (debug) — كافية للتثبيت والاستخدام الشخصي.
+3. يُبنى APK جديد تلقائياً عند كل push إلى `main` ويُنشر في نفس الرابط.
 
 ### على الحاسوب (للتطوير)
 ```bash
