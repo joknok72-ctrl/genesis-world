@@ -1,6 +1,5 @@
 # Godot 4
 .godot/
-*.import
 export/
 build/
 *.apk

@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   GODOT_VERSION: 4.7.2
   PROJECT_NAME: Genesis
@@ -63,8 +66,9 @@ jobs:
           export/android/debug_keystore_pass = "android"
           EOT
 
-      - name: Import project
+      - name: Import project (twice: first pass generates .import files, second validates)
         run: |
+          ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --path . --import || true
           ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 --headless --path . --import || true
 
       - name: Export APK (debug-signed, installable)
