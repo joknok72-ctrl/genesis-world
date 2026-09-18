@@ -22,13 +22,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android build tools
+      - name: Prepare Android SDK (preinstalled on runner)
         run: |
-          yes | sdkmanager --licenses >/dev/null 2>&1 || true
-          sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "cmdline-tools;latest"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKM=$(ls -d $ANDROID_HOME/cmdline-tools/*/bin/sdkmanager | head -1)
+          echo "sdkmanager: $SDKM"
+          yes | "$SDKM" --licenses >/dev/null 2>&1 || true
+          "$SDKM" "platform-tools" "build-tools;34.0.0" "platforms;android-34" || true
+          ls $ANDROID_HOME/build-tools
 
       - name: Download Godot ${{ env.GODOT_VERSION }} + export templates
         run: |
