@@ -192,7 +192,7 @@ func _draw() -> void:
 				draw_circle(p + Vector2(-12 + k * 6, 8 - (k % 2) * 4), 5.0, Color(0.45, 0.42, 0.4))
 			draw_circle(p + Vector2(0, 4), 5.0, Color(0.5, 0.47, 0.45))
 		else:
-			draw_ellipse(p + Vector2(0, 6), Vector2(16, 7), Color(0.55, 0.45, 0.4))
+			draw_oval(p + Vector2(0, 6), Vector2(16, 7), Color(0.55, 0.45, 0.4))
 			draw_circle(p + Vector2(-14, 4), 5.0, Color(0.75, 0.62, 0.52))
 	# النار
 	for f in world.fires:
@@ -216,7 +216,7 @@ func _draw() -> void:
 	# الليل والطقس
 	_draw_atmosphere(vis, daylight)
 
-func draw_ellipse(c: Vector2, r: Vector2, col: Color) -> void:
+func draw_oval(c: Vector2, r: Vector2, col: Color) -> void:
 	var pts := PackedVector2Array()
 	for i in 20:
 		var a := float(i) / 20.0 * TAU
@@ -337,7 +337,7 @@ func _draw_animal(a: Animal) -> void:
 	var s := 0.6 + a.size() * 0.9
 	var bob := sin(a.anim_t * 8.0) * 1.5 if a.fear > 0.3 else sin(a.anim_t * 2.0) * 0.5
 	if not a.alive:
-		draw_ellipse(p + Vector2(0, 4), Vector2(12 * s, 5 * s), col.darkened(0.3))
+		draw_oval(p + Vector2(0, 4), Vector2(12 * s, 5 * s), col.darkened(0.3))
 		draw_circle(p + Vector2(-10 * s, 3), 4 * s, col.darkened(0.2))
 		return
 	var f := a.facing
@@ -348,16 +348,16 @@ func _draw_animal(a: Animal) -> void:
 			draw_line(p, p + Vector2(8, w), col, 2.0)
 			draw_circle(p, 2.5, col)
 		Animal.K.FISH:
-			draw_ellipse(p, Vector2(7, 3), col)
+			draw_oval(p, Vector2(7, 3), col)
 			draw_colored_polygon(PackedVector2Array([p + Vector2(-7 * f, 0), p + Vector2(-11 * f, -4), p + Vector2(-11 * f, 4)]), col)
 		_:
-			draw_ellipse(p + Vector2(0, 6), Vector2(10 * s, 3), Color(0, 0, 0, 0.25))
+			draw_oval(p + Vector2(0, 6), Vector2(10 * s, 3), Color(0, 0, 0, 0.25))
 			# أرجل
 			for k in 2:
 				var lx := (-6 + k * 12) * s
 				var kick := sin(a.anim_t * 10.0 + k * PI) * 3.0 if a.fear > 0.3 or a.target.distance_to(a.pos) > 0.3 else 0.0
 				draw_line(p + Vector2(lx, 2 + bob), p + Vector2(lx + kick, 8), col.darkened(0.3), 2.0 * s)
-			draw_ellipse(p + Vector2(0, bob), Vector2(11 * s, 6 * s), col)
+			draw_oval(p + Vector2(0, bob), Vector2(11 * s, 6 * s), col)
 			var head := p + Vector2(11 * s * f, -4 * s + bob)
 			draw_circle(head, 4.5 * s, col.lightened(0.05))
 			draw_circle(head + Vector2(2 * f, -1), 1.0, Color(0.05, 0.05, 0.05))
@@ -385,9 +385,9 @@ func _draw_human(h: Human, now: float, zoom: float) -> void:
 	var walk := sin(h.anim_t * 9.0) if h.moving else 0.0
 	var H := 30.0 * sc
 	# ظل
-	draw_ellipse(p + Vector2(0, 4), Vector2(9 * sc, 3.5), Color(0, 0, 0, 0.3))
+	draw_oval(p + Vector2(0, 4), Vector2(9 * sc, 3.5), Color(0, 0, 0, 0.3))
 	if sleeping:
-		draw_ellipse(p + Vector2(0, -2), Vector2(13 * sc, 5 * sc), skin)
+		draw_oval(p + Vector2(0, -2), Vector2(13 * sc, 5 * sc), skin)
 		draw_circle(p + Vector2(-12 * sc, -3), 5 * sc, skin)
 		draw_circle(p + Vector2(-13 * sc, -5), 4.5 * sc, hair)
 		var zz := fmod(h.anim_t, 2.0)

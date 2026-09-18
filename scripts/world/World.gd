@@ -254,7 +254,7 @@ func _update_weather(dt: float, now: float) -> void:
 	ambient_temp = center_t
 	if weather_timer <= 0.0:
 		weather_timer = Rng.randf_range(1800.0, 4.0 * 3600.0)
-		var wet := [0.35, 0.18, 0.3, 0.4][season]
+		var wet: float = [0.35, 0.18, 0.3, 0.4][season]
 		var r := Rng.randf()
 		if r < 0.5 - wet * 0.5:
 			weather = Weather.CLEAR
@@ -265,9 +265,9 @@ func _update_weather(dt: float, now: float) -> void:
 		else:
 			weather = Weather.STORM
 		wind = Vector2(cos(Rng.randf() * TAU), sin(Rng.randf() * TAU)) * Rng.randf_range(0.2, 1.0)
-	var target_cloud := [0.05, 0.6, 0.9, 1.0, 0.85][weather]
+	var target_cloud: float = [0.05, 0.6, 0.9, 1.0, 0.85][weather]
 	cloud_cover = lerpf(cloud_cover, target_cloud, clampf(dt / 240.0, 0.0, 1.0))
-	var target_rain := [0.0, 0.0, 0.6, 1.0, 0.5][weather]
+	var target_rain: float = [0.0, 0.0, 0.6, 1.0, 0.5][weather]
 	rain_intensity = lerpf(rain_intensity, target_rain, clampf(dt / 120.0, 0.0, 1.0))
 	if weather == Weather.STORM and Rng.chance(dt / 220.0):
 		var x := Rng.randi_range(0, Terrain.W - 1)

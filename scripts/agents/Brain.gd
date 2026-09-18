@@ -377,7 +377,7 @@ static func _begin(w: World, h: Human, c: Dictionary, now: float) -> void:
 		h.act_target_pos.x = clampf(h.act_target_pos.x, 1.0, Terrain.W - 2.0)
 		h.act_target_pos.y = clampf(h.act_target_pos.y, 1.0, Terrain.H - 2.0)
 	if c.act == Human.Act.FLEE:
-		var away := (h.pos - c.pos).normalized()
+		var away: Vector2 = (h.pos - Vector2(c.pos)).normalized()
 		if away.length() < 0.1:
 			away = Vector2.RIGHT.rotated(Rng.randf() * TAU)
 		h.act_target_pos = h.pos + away * 7.0
@@ -830,7 +830,7 @@ static func _do_mouth(w: World, h: Human, item: int, now: float) -> void:
 	h.last_meal_item = item
 	h.last_meal_at = now
 	w.stats.meals += 1
-	var reward := (h.hunger - before) * 2.2 - fx.poison * 2.5 - fx.sick * 0.3
+	var reward: float = (h.hunger - before) * 2.2 - fx.poison * 2.5 - fx.sick * 0.3
 	# طعم فوري: السامّ مرّ عادة
 	if fx.poison > 0.3:
 		reward -= 0.4

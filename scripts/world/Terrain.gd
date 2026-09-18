@@ -243,14 +243,14 @@ func temperature(x: int, y: int, season: int, daylight: float, day_of_year: int)
 ## ---- التجدد الموسمي (يُستدعى بضع مئات بلاطات في الثانية) ----
 func regrow_step(count: int, season: int, dt_hours: float) -> void:
 	var n := W * H
-	var growth := [1.0, 0.7, 0.3, 0.05][season]
+	var growth: float = [1.0, 0.7, 0.3, 0.05][season]
 	for k in count:
 		var i := _regrow_cursor
 		_regrow_cursor = (_regrow_cursor + 1) % n
 		var b := biome[i]
 		if b == B.WATER or b == B.DEEP_WATER or b == B.SNOW:
 			continue
-		var p := growth * dt_hours
+		var p: float = growth * dt_hours
 		if burnt[i] > 0:
 			if Rng.chance(0.06 * dt_hours):
 				burnt[i] -= 1
