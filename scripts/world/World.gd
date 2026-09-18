@@ -191,6 +191,23 @@ func start_fire(i: int, fuel: float, cause: String) -> void:
 # =================== الحلقة الرئيسية ===================
 ## dt: ثواني عالم (حقيقية). تُستدعى كل إطار بـ delta أو بخطوات كبيرة عند الاستدراك.
 func tick(dt: float, now: float, coarse: bool = false) -> void:
+	# الحركة والقرارات لا تصحّ بخطوات كبيرة؛ نقسم أي خطوة إلى أجزاء ≤ 4 ثوانٍ
+	var max_sub := MAX_SUBSTEP_COARSE if coarse else MAX_SUBSTEP
+	if dt > max_sub:
+		var remaining := dt
+		var t := now - dt
+		while remaining > 0.0001:
+			var sub := minf(max_sub, remaining)
+			t += sub
+			_tick_inner(sub, t, true)
+			remaining -= sub
+		return
+	_tick_inner(dt, now, coarse)
+
+const MAX_SUBSTEP := 4.0
+const MAX_SUBSTEP_COARSE := 8.0
+
+func _tick_inner(dt: float, now: float, coarse: bool) -> void:
 	sim_time += dt
 	_update_weather(dt, now)
 	_regrow_accum += dt
@@ -409,13 +426,13 @@ func _physiology(h: Human, dt: float, now: float, daylight: float) -> void:
 		h.health -= h.poison * dt / (0.8 * 86400.0)
 		h.poison = maxf(0.0, h.poison - dt / (1.5 * 86400.0))
 	if h.sick > 0.0:
-		h.health -= h.sick * dt / (4.0 * 86400.0)
+		h.health -= h.sick * dt / (7.0 * 86400.0)
 		h.energy = maxf(0.0, h.energy - h.sick * dt / (30.0 * 3600.0))
 		h.sick = maxf(0.0, h.sick - dt / (5.0 * 86400.0) * (1.5 if sleeping else 1.0))
 	if h.injury > 0.0:
-		h.injury = maxf(0.0, h.injury - dt / (10.0 * 86400.0))
-		if Rng.chance(dt / (3.0 * 86400.0) * h.injury):
-			h.sick = minf(1.0, h.sick + 0.3)  # التهاب
+		h.injury = maxf(0.0, h.injury - dt / (6.0 * 86400.0) * (1.5 if sleeping else 1.0))
+		if Rng.chance(dt / (6.0 * 86400.0) * h.injury):
+			h.sick = minf(1.0, h.sick + 0.2)  # التهاب
 	# الجوع والعطش يقتلان
 	if h.hunger <= 0.0:
 		h.health -= dt / (6.0 * 86400.0)
@@ -426,8 +443,8 @@ func _physiology(h: Human, dt: float, now: float, daylight: float) -> void:
 	if h.body_temp > 40.0:
 		h.health -= (h.body_temp - 40.0) * dt / (1.0 * 86400.0)
 	# شفاء
-	if h.hunger > 0.4 and h.thirst > 0.4 and h.sick < 0.2 and h.poison < 0.1:
-		h.health = minf(1.0, h.health + dt / (9.0 * 86400.0) * (1.6 if sleeping else 1.0))
+	if h.hunger > 0.35 and h.thirst > 0.35 and h.sick < 0.3 and h.poison < 0.1:
+		h.health = minf(1.0, h.health + dt / (6.0 * 86400.0) * (1.8 if sleeping else 1.0))
 	# النار تحرق من يقف فوقها
 	var fi := fire_at(terrain.idx(clampi(int(h.pos.x), 0, Terrain.W - 1), clampi(int(h.pos.y), 0, Terrain.H - 1)))
 	if not fi.is_empty() and fi.fuel > 1.0:
@@ -625,11 +642,11 @@ func _update_animals(dt: float, now: float, coarse: bool) -> void:
 
 func _animal_attacks_human(a: Animal, h: Human, now: float) -> void:
 	a.attack_cd = 4.0
-	var dmg := a.ferocity() * a.size() * Rng.randf_range(0.5, 1.2)
+	var dmg := a.ferocity() * a.size() * Rng.randf_range(0.5, 1.2) * 0.45
 	var defense := h.g_strength * Items.strike_power(h.best_weapon()) * 0.35
 	dmg = maxf(0.02, dmg - defense * 0.4)
 	h.injury = minf(1.0, h.injury + dmg)
-	h.health -= dmg * 0.6
+	h.health -= dmg * 0.35
 	h.drives[Human.D.PAIN] = 1.0
 	h.drives[Human.D.FEAR] = 1.0
 	h.fear_of_animals = minf(1.0, h.fear_of_animals + 0.3)

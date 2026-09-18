@@ -36,7 +36,7 @@ static func food_effect(t: int) -> Dictionary:
 		T.FRUIT: return {"cal": 0.22, "water": 0.12, "poison": 0.0, "sick": 0.0}
 		T.ROOT: return {"cal": 0.25, "water": 0.03, "poison": 0.0, "sick": 0.02}
 		T.BERRY: return {"cal": 0.12, "water": 0.08, "poison": 0.0, "sick": 0.0}
-		T.POISON_BERRY: return {"cal": 0.05, "water": 0.05, "poison": 0.55, "sick": 0.6}
+		T.POISON_BERRY: return {"cal": 0.05, "water": 0.05, "poison": 0.4, "sick": 0.5}
 		T.RAW_MEAT: return {"cal": 0.45, "water": 0.05, "poison": 0.0, "sick": 0.3}
 		T.COOKED_MEAT: return {"cal": 0.6, "water": 0.02, "poison": 0.0, "sick": 0.01}
 		T.EGG: return {"cal": 0.2, "water": 0.05, "poison": 0.0, "sick": 0.08}

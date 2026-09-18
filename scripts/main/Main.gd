@@ -60,6 +60,12 @@ func _parse_args() -> void:
 			set_meta("skip_genesis", true)
 		if a.begins_with("--speed="):
 			WorldClock.speed_multiplier = float(a.substr(8))
+		if a.begins_with("--fake-absence="):
+			set_meta("fake_absence", float(a.substr(15)))
+		if a == "--test-select":
+			set_meta("test_select", true)
+		if a.begins_with("--test-panel="):
+			set_meta("test_panel", a.substr(13))
 
 # ============================ البداية ============================
 func _start_genesis() -> void:
@@ -123,7 +129,10 @@ func _load_world() -> void:
 	world = World.new()
 	world.from_save(d.world)
 	Chronicle.from_save(d.chronicle)
-	WorldClock.resume_world(d.epoch, d.get("offset", 0.0))
+	var off: float = d.get("offset", 0.0)
+	if has_meta("fake_absence"):
+		off += get_meta("fake_absence")
+	WorldClock.resume_world(d.epoch, off)
 	WorldClock.speed_multiplier = 1.0
 	# الاستدراك: كم من الزمن الحقيقي مرّ ونحن غائبون؟
 	_catchup_total = maxf(0.0, WorldClock.world_seconds - world.sim_time)
@@ -149,6 +158,7 @@ func _enter_world() -> void:
 	for h in world.humans:
 		if h.alive:
 			c = h.pos
+			follow_id = h.id
 			break
 	cam.global_position = c * WorldView.TILE
 	cam.zoom = Vector2(0.9, 0.9)
@@ -202,6 +212,19 @@ func _process(delta: float) -> void:
 			_world_process(delta)
 	if _eye:
 		_eye_capture(delta)
+		if state == State.WORLD and _catchup_left <= 0.0 and _eye_seq >= 2 and has_meta("test_select") and hud.selected == null:
+			for h in world.humans:
+				if h.alive:
+					hud.select_human(h)
+					follow_id = h.id
+					break
+		if state == State.WORLD and _catchup_left <= 0.0 and _eye_seq >= 3 and has_meta("test_panel"):
+			var pn: String = get_meta("test_panel")
+			remove_meta("test_panel")
+			if pn == "chronicle": hud._toggle(hud.chronicle_panel)
+			elif pn == "stats": hud._toggle(hud.stats_panel)
+			elif pn == "settings": hud._toggle(hud.settings_panel)
+			elif pn == "help": hud._toggle(hud.help_panel)
 
 func _world_process(delta: float) -> void:
 	# 1) الاستدراك بعد الغياب — نحاكي بخطوات كبيرة ضمن ميزانية زمنية لكل إطار

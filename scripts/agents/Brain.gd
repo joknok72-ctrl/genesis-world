@@ -40,7 +40,10 @@ static func update_drives(w: World, h: Human, now: float) -> void:
 	d[Human.D.PARENT] = parent
 
 # ======================= الخطوة =======================
+static var coarse_mode := false
+
 static func step(w: World, h: Human, dt: float, now: float, coarse: bool) -> void:
+	coarse_mode = coarse
 	h.anim_t += dt
 	h.moving = false
 	if h.speech_timer > 0.0:
@@ -148,7 +151,7 @@ static func _nearest_idx(h: Human, arr: Array) -> int:
 # ======================= القرار =======================
 ## كل مرشّح: {act, tg, tid, pos, key, item, item2}
 static func _decide(w: World, h: Human, now: float) -> void:
-	h.think_timer = Rng.randf_range(0.6, 2.2)
+	h.think_timer = Rng.randf_range(0.6, 2.2) * (3.0 if coarse_mode else 1.0)
 	var p := _perceive(w, h, now)
 	var dom := h.dominant_drive()
 	var cands: Array = []
@@ -246,7 +249,7 @@ static func _decide(w: World, h: Human, now: float) -> void:
 		if not a.alive:
 			continue
 		var weapon := h.best_weapon()
-		var courage := h.g_aggression * 0.5 + Items.strike_power(weapon) * 0.15 - h.fear_of_animals * 0.6
+		var courage := h.g_aggression * 0.4 + Items.strike_power(weapon) * 0.15 - h.fear_of_animals * 0.7 - (0.25 if a.ferocity() > 0.3 else 0.0)
 		if a.is_predator():
 			cands.append({"act": Human.Act.FLEE, "tg": Human.Tg.ANIMAL, "tid": a.id, "key": "FLEE|animal", "pos": a.pos, "base": h.fear_of_animals * 0.9 + (0.5 if a.pos.distance_to(h.pos) < 3.0 else 0.0)})
 		if not child and courage > 0.0 and a.kind != Animal.K.FISH and (a.pos.distance_to(h.pos) < 5.0):
@@ -549,6 +552,30 @@ static func _perform(w: World, h: Human, dt: float, now: float, coarse: bool) ->
 						else:
 							_finish(w, h, now, -0.08)
 				return
+			var dist_a := h.pos.distance_to(a.pos)
+			# الرمي: إن كان في اليد ما يُرمى والحيوان قريب، يُلقيه (تجربة؛ يتعلّم نتيجتها)
+			if dist_a < 3.2 and dist_a > REACH and (item == Items.T.STONE or item == Items.T.SPEAR or item == Items.T.SHARP_STONE) and h.holds(item) and h.act_progress < 0.5:
+				h.act_progress = 1.0
+				h.remove_item(item)
+				var acc := 0.18 + h.g_strength * 0.15 + (0.35 if item == Items.T.SPEAR else 0.0) + h.tries(h.act_key) * 0.01
+				var land := a.pos + Vector2(Rng.randf_range(-0.6, 0.6), Rng.randf_range(-0.6, 0.6))
+				w.drop_item(w.terrain.idx(clampi(int(land.x), 0, Terrain.W - 1), clampi(int(land.y), 0, Terrain.H - 1)), item)
+				if Rng.chance(clampf(acc, 0.05, 0.85)):
+					a.health -= Items.strike_power(item) * 0.5 * lerpf(0.6, 1.4, h.g_strength)
+					a.fear = 1.0
+					if a.health <= 0.0:
+						a.alive = false
+						a.corpse_timer = 0.0
+						w.stats.hunts += 1
+						h.places["meat"] = a.pos
+						Chronicle.milestone("first_throw_kill", "%s رمى %s فأصاب %s من بعيد. صار للذراع امتداد." % [h.label_ar(), Items.NAME_AR[item], a.name_ar()], h.pos)
+						_finish(w, h, now, 0.7)
+						return
+					_finish(w, h, now, 0.15)
+					return
+				a.fear = 0.8
+				_finish(w, h, now, -0.05)
+				return
 			if _move_toward(w, h, a.pos, dt, now, true):
 				# ضربة
 				var pw2 := Items.strike_power(item) * lerpf(0.6, 1.4, h.g_strength)
@@ -577,7 +604,7 @@ static func _perform(w: World, h: Human, dt: float, now: float, coarse: bool) ->
 			if stick_rub:
 				var dry := 1.0 - w.rain_intensity
 				h.heat_accum += dt * dry * lerpf(0.6, 1.3, h.g_strength)
-				if h.heat_accum > 25.0 and Rng.chance(dt * 0.12 * dry):
+				if h.heat_accum > 70.0 and Rng.chance(dt * 0.04 * dry):
 					var i := w.terrain.idx(h.tile().x, h.tile().y)
 					w.start_fire(i, 8.0, "")
 					h.remove_item(Items.T.STICK)
@@ -589,8 +616,8 @@ static func _perform(w: World, h: Human, dt: float, now: float, coarse: bool) ->
 						Chronicle.add(Chronicle.Kind.DISCOVERY, "%s أشعل ناراً." % h.label_ar(), h.pos, 1)
 					_finish(w, h, now, 0.9)
 					return
-				if h.act_progress > 40.0 or h.energy < 0.1:
-					h.heat_accum *= 0.5
+				if h.act_progress > 60.0 or h.energy < 0.1:
+					h.heat_accum *= 0.6
 					_finish(w, h, now, 0.03 if h.heat_accum > 10.0 else -0.04)
 				return
 			if h.act_progress > 6.0 or coarse:

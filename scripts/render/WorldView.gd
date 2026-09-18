@@ -70,7 +70,7 @@ func _paint_overlay() -> void:
 			if t.burnt[i] > 0:
 				c = Color(0.1, 0.08, 0.06, 0.6 * t.burnt[i] / 6.0)
 			elif t.trees[i] + t.fruit_trees[i] > 0:
-				c = Color(0.1, 0.25, 0.08, 0.25 * mini(3, t.trees[i] + t.fruit_trees[i]))
+				c = Color(0.1, 0.25, 0.08, 0.08 * mini(3, t.trees[i] + t.fruit_trees[i]))
 			overlay_img.set_pixel(x, y, c)
 	overlay_tex.update(overlay_img)
 

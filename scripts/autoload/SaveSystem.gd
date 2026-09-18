@@ -10,7 +10,7 @@ signal saved()
 signal loaded()
 
 var autosave_interval := 60.0
-var _timer := 0.0
+var _timer := 45.0  # أول حفظ بعد 15 ثانية من الدخول
 var world_ref: RefCounted = null
 var last_saved_at: float = 0.0
 
