@@ -1,0 +1,76 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Genesis: عالم بلا قواعد"
+config/description="محاكاة واقعية لعالم يبدأ من العدم، بزمن حقيقي 1:1، وبشر يتعلمون بأنفسهم بلا أي تعليمات."
+config/version="1.0.0"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+run/low_processor_mode=false
+boot_splash/bg_color=Color(0.02, 0.024, 0.05, 1)
+boot_splash/show_image=false
+config/icon="res://icon.svg"
+
+[autoload]
+
+Log="*res://scripts/autoload/Log.gd"
+Rng="*res://scripts/autoload/Rng.gd"
+WorldClock="*res://scripts/autoload/WorldClock.gd"
+Chronicle="*res://scripts/autoload/Chronicle.gd"
+SaveSystem="*res://scripts/autoload/SaveSystem.gd"
+AudioBus="*res://scripts/autoload/AudioBus.gd"
+Settings="*res://scripts/autoload/Settings.gd"
+
+[debug]
+
+gdscript/warnings/unused_parameter=0
+gdscript/warnings/integer_division=0
+gdscript/warnings/narrowing_conversion=0
+gdscript/warnings/shadowed_variable=0
+gdscript/warnings/unused_signal=0
+gdscript/warnings/return_value_discarded=0
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/size/mode=0
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+window/vsync/vsync_mode=1
+
+[gui]
+
+theme/custom="res://assets/theme.tres"
+theme/custom_font="res://assets/fonts/Cairo-Regular.ttf"
+theme/default_font_antialiasing=1
+theme/default_font_hinting=1
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=true
+
+[internationalization]
+
+locale/fallback="ar"
+rendering/text_driver="ICU / HarfBuzz / Graphite (Built-in)"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+2d/snap/snap_2d_transforms_to_pixel=false
+anti_aliasing/quality/msaa_2d=0
+environment/defaults/default_clear_color=Color(0.02, 0.024, 0.05, 1)

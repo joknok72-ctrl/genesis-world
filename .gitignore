@@ -1,0 +1,14 @@
+# Godot 4
+.godot/
+*.import
+export/
+build/
+*.apk
+*.aab
+*.pck
+*.tmp
+.DS_Store
+*.keystore
+*.jks
+*.log
+eye/
